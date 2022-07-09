@@ -1,0 +1,131 @@
+<snippet>
+	<content><![CDATA[
+// change appropriately;    take 1-indexed array
+struct dat
+{
+    ll mx;
+    dat():mx(0) {};
+};
+
+struct segment
+{
+    ll N;
+    vector<dat> t;
+    vector<bool> clazy;
+    vector<dat> lazy;
+
+    segment(ll n)
+    {
+        N=n;
+        t.resize(4*N+5);
+        clazy.assign(4*N+5,0);
+        lazy.resize(4*N+5);
+    }
+
+    // wrtie function
+    void merge(dat &cur,dat &l,dat &r)
+    {
+        cur.mx=(l.mx^r.mx);
+    }
+
+    void propogate(ll cur,ll L,ll R)
+    {
+        if(L!=R)
+        {
+            // change appropriately
+            lazy[2*cur]=lazy[cur];
+            lazy[2*cur+1]=lazy[cur];
+            clazy[2*cur]=clazy[2*cur+1]=1;
+        }
+        // change appropriately
+        t[cur]=lazy[cur];
+        clazy[cur]=0;
+    }
+
+    void build(ll cur,ll L,ll R)
+    {
+        if(L==R)
+        {
+            t[cur].mx=a[L];
+            return ;
+        }
+        ll M=(L+R)/2;
+        build(2*cur,L,M);
+        build(2*cur+1,M+1,R);
+        merge(t[cur],t[2*cur],t[2*cur+1]);
+    }
+
+    dat Query(ll cur,ll L,ll R,ll i,ll j)
+    {
+        if(clazy[cur]) propogate(cur,L,R);
+        if(j<L || i>R) return dat();
+        if(i<=L && R<=j) return t[cur];
+        
+        ll M=(L+R)/2;
+        dat left=Query(2*cur,L,M,i,j);
+        dat right=Query(2*cur+1,M+1,R,i,j);
+        dat final;
+        merge(final,left,right);
+        return final;
+    }
+
+    void Update(ll cur,ll L,ll R,ll i,ll j,ll val)
+    {
+        if(clazy[cur]) propogate(cur,L,R);
+        if(j<L || i>R) return ;
+        
+        if(i<=L && R<=j)
+        {
+            clazy[cur]=1;
+            lazy[cur].mx=val;
+            propogate(cur,L,R);
+            return ;
+        }
+
+        ll M=(L+R)/2;
+        Update(2*cur,L,M,i,j,val);
+        Update(2*cur+1,M+1,R,i,j,val);
+        merge(t[cur],t[2*cur],t[2*cur+1]);
+    }
+
+    void pUpdate(ll cur,ll L,ll R,ll pos,ll val)
+    {
+        if(clazy[cur]) propogate(cur,L,R);
+        if(L==R)
+        {
+            lazy[cur].mx=val;
+            clazy[cur]=1;
+            propogate(cur,L,R);
+            return ;
+        }
+
+        ll M=(L+R)/2;
+        if(pos<=M) pUpdate(2*cur,L,M,pos,val);
+        else pUpdate(2*cur+1,M+1,R,pos,val);
+        merge(t[cur],t[2*cur],t[2*cur+1]);
+    }
+
+    dat query(ll l,ll r)
+    {
+        return Query(1,1,N,l,r);
+    }
+
+    void update(ll l,ll r,ll val)
+    {
+        Update(1,1,N,l,r,val);
+    }
+
+    void update(ll pos,ll val)
+    {
+        pUpdate(1,1,N,pos,val);
+    }
+};
+
+
+
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>segment_tree</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

@@ -1,0 +1,110 @@
+<snippet>
+	<content><![CDATA[
+//  take 1-indexed array + all node number > 1 (if 0 then it means it has no parent / not possible answer)
+
+const int logK=20;
+int tim=0;
+int p[N][logK];
+int tin[N],tout[N],lvl[N];
+
+void dfs(int now,int par=0,int leval=0)
+{
+    tin[now]=++tim;
+    p[now][0]=par;
+    lvl[now]=leval;
+
+    for(auto to:v[now])
+        if(to!=par)
+            dfs(to,now,leval+1);
+
+    tout[now]=tim;
+}
+
+void build_lca()    // call this func after dfs
+{
+    for(int j=1;j<logK;j++)
+        for(int i=1;i<=n;i++)
+            p[i][j]=p[p[i][j-1]][j-1];
+}
+
+int lca(int u,int v)
+{
+    if(lvl[u]<lvl[v]) swap(u,v);
+    
+    int dif=lvl[u]-lvl[v];
+    for(int i=logK-1;i>=0;i--)
+        if(dif & (1LL<<i)) u=p[u][i];
+    
+    if(u==v) return u;
+    
+    for(int i=logK-1;i>=0;i--)
+        if(p[u][i] && p[u][i]!=p[v][i]) 
+            u=p[u][i],v=p[v][i];
+    
+    return p[u][0];
+}
+
+bool is_anc(int u,int v)      //  u is anc of v
+{
+    return ( tin[u] <= tin[v] && tout[u] >= tout[v] );
+}
+
+int walk(int u,int h)  // up walk of h leval from u
+{
+    for(int i=logK-1;i>=0;i--)
+        if(h & (1LL<<i)) u=p[u][i];
+    return u;
+}
+
+int dis(int u,int v)
+{
+    return lvl[u]+lvl[v]-2*lvl[lca(u,v)];
+}
+
+
+/*
+//  For Directed Cyclic Graph:  https://cses.fi/problemset/result/3508961/
+//  add parent while taking input (not in dfs)
+
+int cy[N];
+
+void dfs_cyc(int v,int d=0)   // call dfs1 for all i where cy[i]==0;
+{
+    cy[v]=--d;
+    
+    int u=p[v][0];
+    
+    if(cy[u]==0) dfs_cyc(u,d);
+    
+    if(cy[u]<0) 
+    {
+        cy[v]=cy[u]-cy[v]+1;
+        lvl[v]=0;
+    } 
+    else 
+    {
+        cy[v]=cy[u];
+        lvl[v]=lvl[u]+1;
+    }
+}
+
+int dis_cyc(int u,int v)
+{
+    if(lvl[u]>=lvl[v] && walk(u,lvl[u]-lvl[v])==v)
+        return lvl[u]-lvl[v];
+    else if(lvl[u]+cy[u]>=lvl[v] && walk(u,lvl[u]+cy[u]-lvl[v])==v)
+        return lvl[u]+cy[u]-lvl[v];
+    else 
+        return -1;
+}
+
+*/
+
+
+
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>LCA</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>

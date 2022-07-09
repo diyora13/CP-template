@@ -1,0 +1,35 @@
+<snippet>
+	<content><![CDATA[
+int par[N],rnk[N];   // for size based union make rnk=siz
+
+void build_DSU()
+{
+    for(int i=0;i<N;i++) rnk[i]=0,par[i]=i;
+}
+
+int get(int v)
+{
+    if(par[v]!=v) par[v]=get(par[v]);
+    return par[v];
+}
+ 
+void uni(int u,int v)
+{
+    u=get(u);
+    v=get(v);
+    if(u!=v)
+    {
+        if(rnk[u]<rnk[v]) swap(u,v);
+        par[v]=u;
+        if(rnk[u]==rnk[v]) rnk[u]++;    // siz[u]+=siz[v];
+    }
+}
+
+
+
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>DSU</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>
